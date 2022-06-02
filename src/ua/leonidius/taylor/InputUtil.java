@@ -18,7 +18,11 @@ public class InputUtil {
 
         var iterationsNum = getIterationsNum(scanner);
 
-        return new InputParameters(function, argument, iterationsNum);
+        scanner.nextLine(); // consuming end-of-line char
+
+        var parallelism = whetherToUseParallelism(scanner);
+
+        return new InputParameters(function, argument, iterationsNum, parallelism);
     }
 
     private static MathFunction getFunction(Scanner scanner) {
@@ -68,5 +72,12 @@ public class InputUtil {
             System.out.println("Number of iterations has to be bigger than 0.");
         }
     }
+
+    private static boolean whetherToUseParallelism(Scanner scanner) {
+        System.out.print("Do you want to use parallelism (Y for yes, anything else for no): ");
+        var line = scanner.nextLine();
+        return line.toLowerCase().toCharArray()[0] == 't';
+    }
+
 
 }
