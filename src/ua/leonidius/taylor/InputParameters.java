@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 public record InputParameters(
         MathFunction function,
-        BigDecimal argument,
+        double argument,
         int iterationsNum,
         boolean useParallelism
         ) {}

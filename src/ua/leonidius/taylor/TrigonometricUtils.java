@@ -1,11 +1,9 @@
 package ua.leonidius.taylor;
 
-import java.math.BigDecimal;
-
 public class TrigonometricUtils {
 
-    public static BigDecimal simplifyAngle(BigDecimal angle) {
-        return null; // todo
+    public static double simplifyAngle(double angle) {
+        return Math.atan2(Math.sin(angle), Math.cos(angle)); // normalize\wrap between -pi and pi
     }
 
 }

@@ -52,21 +52,22 @@ public class InputUtil {
         return null;
     }
 
-    private static BigDecimal getArgument(Scanner scanner) {
+    private static double getArgument(Scanner scanner) {
         while (true) {
             System.out.print("Input argument: ");
             var string = scanner.nextLine();
             try {
-                return new BigDecimal(string);
+                return Double.parseDouble(string);
             } catch (Exception e) {
                 System.out.println("Wrong number format. Try again.");
+                // scanner.nextLine(); // remove end-of-line
             }
         }
     }
 
     private static int getIterationsNum(Scanner scanner) {
         while (true) {
-            System.out.print("Input number of iterations: ");
+            System.out.print("Input number of iterations (max 2147483647): ");
             int iterationsNum = scanner.nextInt();
             if (iterationsNum > 0) return iterationsNum;
             System.out.println("Number of iterations has to be bigger than 0.");
