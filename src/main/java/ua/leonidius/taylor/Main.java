@@ -52,7 +52,7 @@ public class Main {
 
         var report = new ReportData();
 
-        int NUM_OF_POWERS_OF_TEN = 7;
+        int NUM_OF_POWERS_OF_TEN = 6;
 
         for (int i = 1; i < NUM_OF_POWERS_OF_TEN; i++) {
              int iterations = (int)Math.pow(10, i);
@@ -71,6 +71,7 @@ public class Main {
 
             for (int threads = 2; threads <= 10; threads++) {
                 System.out.print("Parallel algorithm with " + iterations + " iterations and " + threads + " threads takes... ");
+                Main.numOfThreads = threads;
                 var time2 = averageTimedExecution(
                         () -> new ParallelTaylorAlgorithm().compute(function, x, iterations));
                 System.out.println(time2 + " microseconds");

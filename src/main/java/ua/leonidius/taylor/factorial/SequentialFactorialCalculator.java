@@ -23,6 +23,11 @@ public class SequentialFactorialCalculator implements FactorialCalculator {
         return lastValue;
     }
 
+    @Override
+    public BigDecimal lastFactorialValue() {
+        return lastValue;
+    }
+
     /**
      * Increases the saved value from what it is right now to what is requested
      */

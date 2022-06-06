@@ -34,4 +34,9 @@ public class SteppedCachedFactorialCalculator implements FactorialCalculator {
         return value;
     }
 
+    @Override
+    public BigDecimal lastFactorialValue() {
+        throw new RuntimeException();
+    }
+
 }

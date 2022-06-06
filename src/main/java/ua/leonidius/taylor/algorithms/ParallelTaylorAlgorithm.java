@@ -7,6 +7,7 @@ import ua.leonidius.taylor.factorial.SteppedCachedFactorialCalculator;
 import ua.leonidius.taylor.functions.MathFunction;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -16,7 +17,11 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
 
     @Override
     public BigDecimal compute(MathFunction function, double argument, int iterationsNum) {
-        var pool = Executors.newFixedThreadPool(8);
+        System.out.println("Parallel");
+
+        var numOfThreads = Math.min(Main.numOfThreads, iterationsNum);
+
+        var pool = Executors.newFixedThreadPool(numOfThreads);
 
         var bigArgument = new BigDecimal(argument);
 
@@ -25,19 +30,27 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
         // only compute first factorials from range and supply em
         // with unique calc for each thread
 
-        var globalFactorialCalc = new SequentialFactorialCalculator();
+        // var globalFactorialCalc = new SequentialFactorialCalculator();
 
         // divide equally
-        var tasks = new ArrayList<ComputeTask>(Main.numOfThreads);
-        int partSize = iterationsNum / Main.numOfThreads;
-        for (int i = 0; i < Main.numOfThreads; i++) {
+
+        var tasks = new ArrayList<ComputeTask>(numOfThreads);
+        int partSize = iterationsNum / numOfThreads;
+
+        for (int i = 0; i < numOfThreads; i++) {
             int startIndex = i * partSize;
             int endIndex = (i + 1) * partSize;
 
             var startFactorialArg = function.getNthFactorialArgument(i);
-            var startFactorial = globalFactorialCalc.compute(startFactorialArg);
+
+            // var startFactorial = globalFactorialCalc.compute(startFactorialArg);
+
             var calc = new SequentialFactorialCalculator();
-            calc.setLastValues(startFactorialArg, startFactorial);
+            if (startIndex > 0) {
+                calc.setLastValues(startFactorialArg, new BigDecimal(startFactorialArg));
+                // this is not actually a factorial value. We will divide the whole
+                // thing by the biggest factorial value from the previous thread
+            }
 
             tasks.add(new ComputeTask(startIndex, endIndex, function, bigArgument, calc));
         }
@@ -46,9 +59,23 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
             var accumulator = BigDecimal.ZERO;
             var futuresList = pool.invokeAll(tasks);
             pool.shutdown();
+
+            BigDecimal lastFactorialValue = BigDecimal.ONE;
+
             for (var future : futuresList) {
                 var result = future.get();
-                accumulator = accumulator.add(result);
+
+                var partialSum = result.sum;
+
+                if (future != futuresList.get(0)) { // if not first
+                   partialSum = partialSum.divide(lastFactorialValue, 1000, RoundingMode.FLOOR);
+                    // and all factorials before that!!!
+                }
+
+                accumulator = accumulator.add(partialSum);
+
+                lastFactorialValue = lastFactorialValue.multiply(result.lastFactorial);
+
             }
             return accumulator;
         } catch (InterruptedException | ExecutionException e) {
@@ -69,7 +96,7 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
         return calc;
     }
 
-    private static class ComputeTask implements Callable<BigDecimal> {
+    private static class ComputeTask implements Callable<ComputeTaskResult> {
 
         private final int startIndex; // inclusive
         private final int endIndex;   // exclusive
@@ -87,14 +114,19 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
         }
 
         @Override
-        public BigDecimal call() {
+        public ComputeTaskResult call() {
             var sum = BigDecimal.ZERO;
             for (int i = startIndex; i < endIndex; i++) {
                 sum = sum.add(function.getNthTaylorTerm(i, argument, factorialCalc));
             }
-            return sum;
+            return new ComputeTaskResult(sum, factorialCalc.lastFactorialValue());
         }
 
     }
+
+    private static record ComputeTaskResult(
+            BigDecimal sum,
+            BigDecimal lastFactorial
+    ) {}
 
 }

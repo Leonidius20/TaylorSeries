@@ -9,7 +9,9 @@ import java.math.BigInteger;
  */
 public interface FactorialCalculator {
 
-    public BigDecimal compute(int argument);
+    BigDecimal compute(int argument);
+
+    BigDecimal lastFactorialValue();
 
 
 }

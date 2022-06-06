@@ -18,4 +18,9 @@ public class CachedFactorialCalculator implements FactorialCalculator {
         return cache.get(argument);
     }
 
+    @Override
+    public BigDecimal lastFactorialValue() {
+        throw new RuntimeException();
+    }
+
 }
