@@ -10,6 +10,9 @@ public class InputUtil {
     public static InputParameters getInput() {
         var scanner = new Scanner(System.in);
 
+        boolean isBenchmark = isBenchmarkNode(scanner);
+        if (isBenchmark) return new InputParameters(true, null, -1, -1, false);
+
         var function = getFunction(scanner);
 
         scanner.nextLine(); // consuming end-of-line char
@@ -22,7 +25,13 @@ public class InputUtil {
 
         var parallelism = whetherToUseParallelism(scanner);
 
-        return new InputParameters(function, argument, iterationsNum, parallelism);
+        return new InputParameters(false, function, argument, iterationsNum, parallelism);
+    }
+
+    private static boolean isBenchmarkNode(Scanner scanner) {
+        System.out.print("Do you want to run the benchmark (Y for yes, N for manual mode): ");
+        var line = scanner.nextLine();
+        return line.toLowerCase().toCharArray()[0] == 'y';
     }
 
     private static MathFunction getFunction(Scanner scanner) {
@@ -77,7 +86,7 @@ public class InputUtil {
     private static boolean whetherToUseParallelism(Scanner scanner) {
         System.out.print("Do you want to use parallelism (Y for yes, anything else for no): ");
         var line = scanner.nextLine();
-        return line.toLowerCase().toCharArray()[0] == 't';
+        return line.toLowerCase().toCharArray()[0] == 'y';
     }
 
 

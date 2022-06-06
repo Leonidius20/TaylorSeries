@@ -1,13 +1,10 @@
-package ua.leonidius.taylor;
+package ua.leonidius.taylor.factorial;
+
+import ua.leonidius.taylor.factorial.FactorialCalculator;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 
-/**
- * This is a helper class that stores the last computed value of factorial
- * and uses it to compute the next value requested (if possible)
- */
-public class FactorialCalculator {
+public class SequentialFactorialCalculator implements FactorialCalculator {
 
     private BigDecimal lastValue = BigDecimal.ONE;
     private int lastArgument = 0;
@@ -39,7 +36,9 @@ public class FactorialCalculator {
         }
     }
 
-    // possible TODO: add a setter function for argument+value
-
+    public void setLastValues(int arg, BigDecimal value) {
+        this.lastArgument = arg;
+        this.lastValue = value;
+    }
 
 }
