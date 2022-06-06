@@ -1,4 +1,4 @@
-package ua.leondius.taylor.factorial;
+package ua.leonidius.taylor.factorial;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

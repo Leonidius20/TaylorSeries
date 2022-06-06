@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 public class Main {
 
-    public static int numOfThreads = 8; // for parallel algo
+    public static int numOfThreads = 7; // for parallel algo
 
     public static void main(String[] args) {
         var input = InputUtil.getInput();

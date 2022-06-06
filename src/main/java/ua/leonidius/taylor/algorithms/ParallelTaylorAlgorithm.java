@@ -1,5 +1,6 @@
 package ua.leonidius.taylor.algorithms;
 
+import ua.leonidius.taylor.factorial.SimpleFactorialCalculator;
 import ua.leonidius.taylor.factorial.FactorialCalculator;
 import ua.leonidius.taylor.Main;
 import ua.leonidius.taylor.factorial.SequentialFactorialCalculator;
@@ -17,7 +18,7 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
 
     @Override
     public BigDecimal compute(MathFunction function, double argument, int iterationsNum) {
-        System.out.println("Parallel");
+        var startTime = System.nanoTime();
 
         var numOfThreads = Math.min(Main.numOfThreads, iterationsNum);
 
@@ -37,6 +38,8 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
         var tasks = new ArrayList<ComputeTask>(numOfThreads);
         int partSize = iterationsNum / numOfThreads;
 
+        var dumbCalc = new SimpleFactorialCalculator();
+
         for (int i = 0; i < numOfThreads; i++) {
             int startIndex = i * partSize;
             int endIndex = (i + 1) * partSize;
@@ -53,7 +56,15 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
             }
 
             tasks.add(new ComputeTask(startIndex, endIndex, function, bigArgument, calc));
+            // tasks.add(new ComputeTask(startIndex, endIndex, function, bigArgument, dumbCalc));
         }
+
+        var endTime = System.nanoTime();
+        System.out.println("Preparations: " + (endTime - startTime));
+        startTime = System.nanoTime();
+
+
+        long calcAcc = 0;
 
         try {
             var accumulator = BigDecimal.ZERO;
@@ -63,12 +74,16 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
             BigDecimal lastFactorialValue = BigDecimal.ONE;
 
             for (var future : futuresList) {
-                var result = future.get();
 
+                var result = future.get();
+                endTime = System.nanoTime();
+               //  waitingAcc += endTime - startTime;
+
+                startTime = System.nanoTime();
                 var partialSum = result.sum;
 
                 if (future != futuresList.get(0)) { // if not first
-                   partialSum = partialSum.divide(lastFactorialValue, 1000, RoundingMode.FLOOR);
+                   partialSum = partialSum.divide(lastFactorialValue, 100, RoundingMode.FLOOR);
                     // and all factorials before that!!!
                 }
 
@@ -76,10 +91,18 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
 
                 lastFactorialValue = lastFactorialValue.multiply(result.lastFactorial);
 
+                endTime = System.nanoTime();
+                calcAcc += endTime - startTime;
             }
+
+            // profiling
+            //System.out.println("Waititng: " + waitingAcc);
+            System.out.println("Sequential last computations: " + calcAcc);
+
             return accumulator;
         } catch (InterruptedException | ExecutionException e) {
             System.out.println("Computation was interrupted or an error happened");
+            e.printStackTrace();
         }
 
         return null;
@@ -120,11 +143,12 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
                 sum = sum.add(function.getNthTaylorTerm(i, argument, factorialCalc));
             }
             return new ComputeTaskResult(sum, factorialCalc.lastFactorialValue());
+            // return new ComputeTaskResult(sum, null);
         }
 
     }
 
-    private static record ComputeTaskResult(
+    private record ComputeTaskResult(
             BigDecimal sum,
             BigDecimal lastFactorial
     ) {}
