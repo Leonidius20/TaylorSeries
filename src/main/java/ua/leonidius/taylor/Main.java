@@ -8,7 +8,6 @@ import ua.leonidius.taylor.functions.Exp;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Main {
 
@@ -52,7 +51,7 @@ public class Main {
 
         var report = new ReportData();
 
-        int NUM_OF_POWERS_OF_TEN = 6;
+        int NUM_OF_POWERS_OF_TEN = 5;
 
         for (int i = 1; i < NUM_OF_POWERS_OF_TEN; i++) {
              int iterations = (int)Math.pow(10, i);
