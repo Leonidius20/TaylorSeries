@@ -37,7 +37,7 @@ public class InputUtil {
     private static MathFunction getFunction(Scanner scanner) {
         MathFunction function = null;
         while (function == null) {
-            System.out.print("Choose function: exp, sin, cos, tan or sec: ");
+            System.out.print("Choose function: exp, sin, or cos: ");
             var functionString = scanner.next();
             function = getFunctionFromString(functionString);
         }
@@ -52,10 +52,6 @@ public class InputUtil {
                 return new Sin();
             case "cos":
                 return new Cos();
-            case  "tan":
-                return new Tan();
-            case "sec":
-                return new Sec();
         }
         System.out.println("Invalid function name. Try again.");
         return null;
