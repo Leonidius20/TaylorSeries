@@ -9,6 +9,7 @@ import ua.leonidius.taylor.functions.Exp;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class Main {
 
@@ -55,8 +56,10 @@ public class Main {
 
         int NUM_OF_POWERS_OF_TEN = 5;
 
-        for (int i = 1; i < NUM_OF_POWERS_OF_TEN; i++) {
-             int iterations = (int)Math.pow(10, i);
+        var iterTimes = new int[]{10, 100, 1000, 2000, 3000, 4000, 5000};
+        // for (int i = 1; i < NUM_OF_POWERS_OF_TEN; i++) {
+        for (var iterations : iterTimes) {
+             // int iterations = (int)Math.pow(10, i);
             //int iterations = 100000 * i;
 
             var reportItem = new ReportData.SingleReport();
@@ -74,11 +77,18 @@ public class Main {
                 System.out.print("Parallel algorithm with " + iterations + " iterations and " + threads + " threads takes... ");
                 Main.numOfThreads = threads;
                 var time2 = averageTimedExecution(
-                        () -> new ParallelTaylorAlgorithm().compute(function, x, iterations, BigDecimal.ZERO));
+                         () -> new ParallelTaylorAlgorithm().compute(function, x, iterations, BigDecimal.ZERO));
+                       // () -> new SimpleForkTaylorAlgorithm().compute(function, x, iterations, BigDecimal.ZERO));
                 System.out.println(time2 + " microseconds");
 
                 reportItem.titlesAndTimes.put(threads + " threads", time2);
             }
+
+            var minTime =
+                    reportItem.titlesAndTimes.values().stream().mapToLong(v -> v).min().getAsLong();
+            var speedup = new  BigDecimal(time).divide(new BigDecimal(minTime), 2, RoundingMode.HALF_UP);
+            System.out.println("At " + iterations + " iterations the speedup is " + speedup.toString());
+            reportItem.speedup = speedup.doubleValue();
 
             report.runs.add(reportItem);
         }
@@ -95,7 +105,7 @@ public class Main {
     }
 
     public static <T> long averageTimedExecution(Method<T> method) {
-        var NUM_OF_EXECUTIONS = 3;
+        var NUM_OF_EXECUTIONS = 10;
 
         long durationAcc = 0;
         for (int i = 0; i < NUM_OF_EXECUTIONS; i++) {

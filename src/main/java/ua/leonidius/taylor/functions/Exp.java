@@ -1,9 +1,6 @@
 package ua.leonidius.taylor.functions;
 
-import ua.leonidius.taylor.factorial.FactorialCalculator;
-
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 public class Exp implements MathFunction {
 

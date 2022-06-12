@@ -11,6 +11,7 @@ public class ReportData {
     public static class SingleReport {
         public int iterations;
         public Map<String, Long> titlesAndTimes = new HashMap<>();
+        public double speedup;
     }
 
 }
