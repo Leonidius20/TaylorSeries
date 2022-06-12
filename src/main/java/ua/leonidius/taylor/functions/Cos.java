@@ -1,29 +1,37 @@
 package ua.leonidius.taylor.functions;
 
-import ua.leonidius.taylor.factorial.FactorialCalculator;
-
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 public class Cos implements MathFunction {
 
-    @Override
-    public BigDecimal getNthTaylorTerm(int n, BigDecimal x, FactorialCalculator factorialCalc) {
-        var sign = new BigDecimal(-1).pow(n);
-        var numerator = x.pow(2 * n);
-        var denominator = factorialCalc.compute(getNthFactorialArgument(n));
+    private final BigDecimal anchorPoint;
 
-        return numerator.divide(denominator, 100, RoundingMode.FLOOR).multiply(sign);
+    private final BigDecimal[] robin;
+
+    public Cos(BigDecimal anchorPoint) {
+        this.anchorPoint = anchorPoint;
+
+        BigDecimal sinA = new BigDecimal(Math.sin(anchorPoint.doubleValue()));
+        BigDecimal negativeSinA = sinA.negate();
+        BigDecimal cosA = new BigDecimal(Math.cos(anchorPoint.doubleValue()));
+        BigDecimal negativeCosA = cosA.negate();
+
+        this.robin = new BigDecimal[]{cosA, negativeSinA, negativeCosA, sinA};
     }
 
     @Override
-    public int getNthFactorialArgument(int n) {
-        return n * 2;
+    public BigDecimal getNthDerivativeOfAnchor(int n) {
+        var roundRobin = n % 4;
+        return robin[roundRobin];
     }
 
     @Override
     public boolean isTrigonometric() {
         return true;
+    }
+
+    private interface Derivative {
+        BigDecimal compute(BigDecimal arg);
     }
 
 }

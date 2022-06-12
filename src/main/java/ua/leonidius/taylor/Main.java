@@ -8,6 +8,7 @@ import ua.leonidius.taylor.functions.Exp;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 
 public class Main {
 
@@ -30,7 +31,8 @@ public class Main {
                 : input.argument();
 
         var result = timedExecution(()
-                -> algorithm.compute(input.function(), argument, input.iterationsNum()));
+                -> algorithm.compute(input.function(), argument,
+                input.iterationsNum(), input.anchorPoint()));
 
         System.out.println("Result: " + result);
     }
@@ -46,7 +48,7 @@ public class Main {
     }
 
     public static void benchmark() {
-        var function = new Exp();
+        var function = new Exp(BigDecimal.ZERO);
         double x = 1;
 
         var report = new ReportData();
@@ -63,7 +65,7 @@ public class Main {
             System.out.print("Sequential algorithm with " + iterations + " iterations takes... ");
 
             var time = averageTimedExecution(
-                    () -> new SequentialTaylorAlgorithm().compute(function, x, iterations));
+                    () -> new SequentialTaylorAlgorithm().compute(function, x, iterations, BigDecimal.ZERO));
             System.out.println(time + " microseconds");
 
             reportItem.titlesAndTimes.put("Sequential", time);
@@ -72,7 +74,7 @@ public class Main {
                 System.out.print("Parallel algorithm with " + iterations + " iterations and " + threads + " threads takes... ");
                 Main.numOfThreads = threads;
                 var time2 = averageTimedExecution(
-                        () -> new ParallelTaylorAlgorithm().compute(function, x, iterations));
+                        () -> new ParallelTaylorAlgorithm().compute(function, x, iterations, BigDecimal.ZERO));
                 System.out.println(time2 + " microseconds");
 
                 reportItem.titlesAndTimes.put(threads + " threads", time2);

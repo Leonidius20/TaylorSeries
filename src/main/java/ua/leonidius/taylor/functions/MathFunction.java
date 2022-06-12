@@ -6,9 +6,7 @@ import java.math.BigDecimal;
 
 public interface MathFunction {
 
-    BigDecimal getNthTaylorTerm(int n, BigDecimal x, FactorialCalculator factorialCalculator);
-
-    int getNthFactorialArgument(int n);
+    BigDecimal getNthDerivativeOfAnchor(int n);
 
     boolean isTrigonometric();
 

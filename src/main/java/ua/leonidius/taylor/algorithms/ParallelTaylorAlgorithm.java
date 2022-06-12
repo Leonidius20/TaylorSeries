@@ -6,6 +6,7 @@ import ua.leonidius.taylor.factorial.SimpleFactorialCalculator;
 import ua.leonidius.taylor.functions.MathFunction;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -14,7 +15,8 @@ import java.util.concurrent.Executors;
 public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
 
     @Override
-    public BigDecimal compute(MathFunction function, double argument, int iterationsNum) {
+    public BigDecimal compute(MathFunction function, double argument,
+                              int iterationsNum, BigDecimal anchorPoint) {
         var numOfThreads = Math.min(Main.numOfThreads, iterationsNum);
 
         var pool = Executors.newFixedThreadPool(numOfThreads);
@@ -32,7 +34,8 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
             int startIndex = i * partSize;
             int endIndex = (i + 1) * partSize;
 
-            tasks.add(new ComputeTask(startIndex, endIndex, function, bigArgument, calc));
+            tasks.add(new ComputeTask(startIndex, endIndex, function,
+                    bigArgument, calc, anchorPoint));
         }
 
         try {
@@ -62,23 +65,36 @@ public class ParallelTaylorAlgorithm implements TaylorAlgorithm {
         private final MathFunction function;
         private final BigDecimal argument;
         private final FactorialCalculator factorialCalc;
+        private final BigDecimal anchorPoint;
 
         private ComputeTask(int startIndex, int endIndex, MathFunction function,
-                            BigDecimal argument, FactorialCalculator factorialCalc) {
+                            BigDecimal argument, FactorialCalculator factorialCalc,
+                            BigDecimal anchorPoint) {
             this.startIndex = startIndex;
             this.endIndex = endIndex;
             this.function = function;
             this.argument = argument;
             this.factorialCalc = factorialCalc;
+            this.anchorPoint = anchorPoint;
         }
 
         @Override
         public BigDecimal call() {
             var sum = BigDecimal.ZERO;
             for (int i = startIndex; i < endIndex; i++) {
-                sum = sum.add(function.getNthTaylorTerm(i, argument, factorialCalc));
+                sum = sum.add(getNthTaylorTerm(function, i, argument, factorialCalc, anchorPoint));
             }
             return sum;
+        }
+
+        private BigDecimal getNthTaylorTerm(MathFunction function, int n, BigDecimal x,
+                                            FactorialCalculator factorialCalc,
+                                            BigDecimal anchorPoint) {
+            var numerator = x.subtract(anchorPoint).pow(n);
+            var denominator = factorialCalc.compute(n);
+
+            return numerator.divide(denominator, 100, RoundingMode.FLOOR)
+                    .multiply(function.getNthDerivativeOfAnchor(n));
         }
 
     }

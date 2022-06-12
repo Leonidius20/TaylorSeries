@@ -9,5 +9,6 @@ public record InputParameters(
         MathFunction function,
         double argument,
         int iterationsNum,
-        boolean useParallelism
+        boolean useParallelism,
+        BigDecimal anchorPoint
         ) {}

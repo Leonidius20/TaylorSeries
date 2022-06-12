@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 public interface TaylorAlgorithm {
 
-    BigDecimal compute(MathFunction function, double argument, int iterationsNum);
+    BigDecimal compute(MathFunction function, double argument,
+                       int iterationsNum, BigDecimal anchorPoint);
 
 }

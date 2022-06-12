@@ -7,17 +7,17 @@ import java.math.RoundingMode;
 
 public class Exp implements MathFunction {
 
-    @Override
-    public BigDecimal getNthTaylorTerm(int n, BigDecimal x, FactorialCalculator factorialCalc) {
-        var numerator = x.pow(n); // convert to bigdecimal
-        var denominator = factorialCalc.compute(getNthFactorialArgument(n));
+    private final BigDecimal anchorPoint;
+    private final BigDecimal expOfAnchor;
 
-        return numerator.divide(denominator, 100, RoundingMode.FLOOR);
+    public Exp(BigDecimal anchorPoint) {
+        this.anchorPoint = anchorPoint;
+        this.expOfAnchor = BigDecimal.valueOf(Math.exp(anchorPoint.doubleValue()));
     }
 
     @Override
-    public int getNthFactorialArgument(int n) {
-        return n;
+    public BigDecimal getNthDerivativeOfAnchor(int n) {
+        return expOfAnchor;
     }
 
     @Override

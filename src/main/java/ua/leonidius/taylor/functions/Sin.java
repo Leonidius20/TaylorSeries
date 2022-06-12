@@ -1,23 +1,28 @@
 package ua.leonidius.taylor.functions;
 
-import ua.leonidius.taylor.factorial.FactorialCalculator;
-
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 public class Sin implements MathFunction {
-    @Override
-    public BigDecimal getNthTaylorTerm(int n, BigDecimal x, FactorialCalculator factorialCalc) {
-        var sign = new BigDecimal(-1).pow(n);
-        var numerator = x.pow(2 * n + 1);
-        var denominator = factorialCalc.compute(getNthFactorialArgument(n));
 
-        return numerator.divide(denominator, 100, RoundingMode.FLOOR).multiply(sign);
+    private final BigDecimal anchorPoint;
+
+    private final BigDecimal[] robin;
+
+    public Sin(BigDecimal anchorPoint) {
+        this.anchorPoint = anchorPoint;
+
+        var sinA = new BigDecimal(Math.sin(anchorPoint.doubleValue()));
+        var negativeSinA = sinA.negate();
+        var cosA = new BigDecimal(Math.cos(anchorPoint.doubleValue()));
+        var negativeCosA = cosA.negate();
+
+        this.robin = new BigDecimal[]{sinA, cosA, negativeSinA, negativeCosA};
     }
 
     @Override
-    public int getNthFactorialArgument(int n) {
-        return (2 * n) + 1;
+    public BigDecimal getNthDerivativeOfAnchor(int n) {
+        var roundRobin = n % 4;
+        return robin[roundRobin];
     }
 
     @Override

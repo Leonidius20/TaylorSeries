@@ -11,9 +11,11 @@ public class InputUtil {
         var scanner = new Scanner(System.in);
 
         boolean isBenchmark = isBenchmarkNode(scanner);
-        if (isBenchmark) return new InputParameters(true, null, -1, -1, false);
+        if (isBenchmark) return new InputParameters(true, null, -1, -1, false, null);
 
-        var function = getFunction(scanner);
+        var anchorPoint = getBigDecimal(scanner, "Input the point, at which the derivatives will be calculated: ");
+
+        var function = getFunction(scanner, anchorPoint);
 
         scanner.nextLine(); // consuming end-of-line char
 
@@ -25,7 +27,7 @@ public class InputUtil {
 
         var parallelism = whetherToUseParallelism(scanner);
 
-        return new InputParameters(false, function, argument, iterationsNum, parallelism);
+        return new InputParameters(false, function, argument, iterationsNum, parallelism, anchorPoint);
     }
 
     private static boolean isBenchmarkNode(Scanner scanner) {
@@ -34,24 +36,24 @@ public class InputUtil {
         return line.toLowerCase().toCharArray()[0] == 'y';
     }
 
-    private static MathFunction getFunction(Scanner scanner) {
+    private static MathFunction getFunction(Scanner scanner, BigDecimal anchorPoint) {
         MathFunction function = null;
         while (function == null) {
             System.out.print("Choose function: exp, sin, or cos: ");
             var functionString = scanner.next();
-            function = getFunctionFromString(functionString);
+            function = getFunctionFromString(functionString, anchorPoint);
         }
         return function;
     }
 
-    private static MathFunction getFunctionFromString(String functionName) {
+    private static MathFunction getFunctionFromString(String functionName, BigDecimal anchorPoint) {
         switch (functionName.toLowerCase()) {
             case "exp":
-                return new Exp();
+                return new Exp(anchorPoint);
             case "sin":
-                return new Sin();
+                return new Sin(new BigDecimal(TrigonometricUtils.simplifyAngle(anchorPoint.doubleValue())));
             case "cos":
-                return new Cos();
+                return new Cos(new BigDecimal(TrigonometricUtils.simplifyAngle(anchorPoint.doubleValue())));
         }
         System.out.println("Invalid function name. Try again.");
         return null;
@@ -83,6 +85,19 @@ public class InputUtil {
         System.out.print("Do you want to use parallelism (Y for yes, anything else for no): ");
         var line = scanner.nextLine();
         return line.toLowerCase().toCharArray()[0] == 'y';
+    }
+
+    private static BigDecimal getBigDecimal(Scanner scanner, String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            var string = scanner.nextLine();
+            try {
+                return new BigDecimal(Double.parseDouble(string));
+            } catch (Exception e) {
+                System.out.println("Wrong number format. Try again.");
+                // scanner.nextLine(); // remove end-of-line
+            }
+        }
     }
 
 
